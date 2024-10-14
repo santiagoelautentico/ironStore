@@ -1,28 +1,36 @@
-import './App.css'
-import { Routes, Route, Link } from 'react-router-dom'
-import Login from './pages/Login.jsx'
-import SignIn from './pages/SignIn.jsx'
-import Dashboard from './pages/Dashboard.jsx'
+import "./App.css";
+import { Routes, Route, Link } from "react-router-dom";
+import Login from "./pages/Login.jsx";
+import SignIn from "./pages/SignIn.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import { useDispatch } from "react-redux";
+import { setCoins } from "./redux/coinsReducer.js";
+import { useEffect } from "react";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    fetch("https://crypto.develotion.com/monedas.php", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        apiKey: localStorage.getItem("apiKey"),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => dispatch(setCoins(data.monedas)));
+  });
 
   return (
     <>
-    <header className='header'>
-      <h1>IronStone</h1>
-      <ul className='nav'>
-        <li><Link to="/">Login</Link></li>
-        <li><Link to="/signin">SignIn</Link></li>
-        <li><Link to="/dashboard">Dashboard</Link></li>
-      </ul>
-    </header>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
