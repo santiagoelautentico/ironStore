@@ -2,7 +2,7 @@ import React from 'react';
 
 function TotalInvested() {
   return (
-    <div className='sectionArticleTotal'>
+    <div className='sectionArticle'>
       <h1>Total Invested</h1>
     </div>
   );

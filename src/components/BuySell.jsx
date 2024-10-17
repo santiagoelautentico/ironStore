@@ -1,13 +1,16 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useRef } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { addTransaction } from "../redux/transactionReducer.js";
 
 const BuySell = () => {
   const coins = useSelector((state) => state.coins.coins);
+  const dispatch = useDispatch(); // Inicializar dispatch
   const [selectedCoin, setSelectedCoin] = React.useState("");
   const [selectedValue, setSelectedValue] = React.useState("");
   const [errorMsj, setErrorMsj] = React.useState("");
   const [msjTotal, setMsjTotal] = React.useState(0);
   const [msjValue, setMsjValue] = React.useState(0);
+  const campo = useRef(null);
 
   const handleSelectChange = (e) => {
     const selectedId = e.target.value;
@@ -31,28 +34,30 @@ const BuySell = () => {
   };
 
   const buyCripto = () => {
+    let transiction = {
+      idUsuario: 1427,
+      tipoOperacion: 1, // Tipo de operación (compra)
+      moneda: parseInt(selectedCoin), // ID de la moneda seleccionada
+      cantidad: selectedValue, // Cantidad seleccionada
+      valorActual: msjTotal, // Valor total calculado
+    };
+
     if (selectedCoin === "" || selectedValue === "") {
       setErrorMsj("Por favor, selecciona una cripto y un monto");
     } else {
-      setErrorMsj(""); // Limpiar mensaje de error
-      // Llamada a la API para comprar cripto
+      setErrorMsj("");
       fetch("https://crypto.develotion.com/transacciones.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           apiKey: localStorage.getItem("apiKey"),
         },
-        body: JSON.stringify({
-          idUsuario: 3018,
-          tipoOperacion: 1, // Tipo de operación (compra)
-          moneda: parseInt(selectedCoin), // ID de la moneda seleccionada
-          cantidad: selectedValue, // Cantidad seleccionada
-          valorActual: msjTotal, // Valor total calculado
-        }),
+        body: JSON.stringify(transiction),
       })
         .then((response) => response.json())
         .then((data) => {
           console.log(data, "transacción exitosa");
+          dispatch(addTransaction(transiction));
           setErrorMsj("");
           // Limpiar campos y estados
           setSelectedCoin("");
@@ -108,7 +113,9 @@ const BuySell = () => {
             id="valueBuy"
           />
         </div>
-        <a className="buttonBuy" onClick={buyCripto}>Comprar</a>
+        <a className="buttonBuy" onClick={buyCripto}>
+          Comprar
+        </a>
       </form>
       <h4>{errorMsj}</h4>
     </article>

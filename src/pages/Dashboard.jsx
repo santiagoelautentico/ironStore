@@ -15,9 +15,9 @@ function Dashboard() {
         <section className="template">
           <BuySell />
           <SellGraphicCoin />
-          <TotalInvested />
-          <GraphicCoin />
           <List />
+          <GraphicCoin />
+          <TotalInvested />
           <GraphicBuyCoin />
           <Article />
         </section>
