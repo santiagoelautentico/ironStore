@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { setUsername } from "../redux/userName.js";
+import { useDispatch } from "react-redux";
+import { Toaster, toast } from "sonner";
 function SignIn() {
   const [departamentos, setDepartamentos] = useState([]);
   const [user, setUser] = useState("");
@@ -9,8 +11,14 @@ function SignIn() {
   const [ciudades, setCiudades] = useState([]);
   const [selectedCity, setSelectedCity] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.removeItem("apiKey");
+    localStorage.removeItem("userID");
+  }, []);
+
   function createAcount() {
     fetch("https://crypto.develotion.com/usuarios.php", {
       method: "POST",
@@ -32,11 +40,13 @@ function SignIn() {
       })
       .then((data) => {
         localStorage.setItem("apiKey", data.apiKey);
-        console.log(data, "usuario creado exitosamente");
+        localStorage.setItem("userID", data.id);
+        dispatch(setUsername(user));
         navigate("/dashboard");
       })
       .catch((error) => {
         console.error("Error:", error);
+        toast.error("Error al crear el usuario");
       });
   }
   useEffect(() => {
@@ -60,17 +70,17 @@ function SignIn() {
   function handleSubmit(e) {
     e.preventDefault();
     if (!user || !password || !selectedDepartamento || !selectedCity) {
-      setSuccessMessage("Por favor, complete todos los campos.");
+      toast.error("Todos los campos son obligatorios");
     } else {
       createAcount();
     }
   }
   return (
     <>
-      <h2>Iniciar Sesión</h2>
-      <article>
-        <form onSubmit={handleSubmit}>
-          <div>
+      <section className="sectionLogin">
+        <form onSubmit={handleSubmit} className="formSign">
+          <h1>Iniciar Sesión</h1>
+          <div className="inputContainer">
             <label htmlFor="email">Usuario</label>
             <input
               type="text"
@@ -80,7 +90,7 @@ function SignIn() {
               onChange={(e) => setUser(e.target.value)} // Actualiza el estado del usuario
             />
           </div>
-          <div>
+          <div className="inputContainer">
             <label htmlFor="password">Password</label>
             <input
               type="password"
@@ -90,50 +100,52 @@ function SignIn() {
               onChange={(e) => setPassword(e.target.value)} // Actualiza el estado del password
             />
           </div>
-          <div>
-            <label htmlFor="departamentos">Departamento</label>
-            <select
-              name="departamentos"
-              id="departamentos"
-              value={selectedDepartamento}
-              onChange={(e) => setSelectedDepartamento(e.target.value)} // Actualiza el estado del departamento seleccionado
-            >
-              <option value="" disabled>
-                Departamento
-              </option>
-              {departamentos.map((departamento) => (
-                <option key={departamento.id} value={departamento.id}>
-                  {departamento.nombre}
+          <div className="city-container">
+            <div className="inputContainer">
+              <label htmlFor="departamentos">Departamento</label>
+              <select
+                name="departamentos"
+                id="departamentos"
+                value={selectedDepartamento}
+                onChange={(e) => setSelectedDepartamento(e.target.value)} // Actualiza el estado del departamento seleccionado
+              >
+                <option value="" disabled>
+                  Departamento
                 </option>
-              ))}
-            </select>
+                {departamentos.map((departamento) => (
+                  <option key={departamento.id} value={departamento.id}>
+                    {departamento.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="inputContainer">
+              <label htmlFor="ciudades">Ciudad</label>
+              <select
+                name="ciudades"
+                id="ciudades"
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)} // Actualiza la ciudad seleccionada
+              >
+                <option value="" disabled>
+                  Ciudad
+                </option>
+                {ciudades.map((ciudad) => (
+                  <option key={ciudad.id} value={ciudad.id}>
+                    {ciudad.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <div>
-            <label htmlFor="ciudades">Ciudad</label>
-            <select
-              name="ciudades"
-              id="ciudades"
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)} // Actualiza la ciudad seleccionada
-            >
-              <option value="" disabled>
-                Ciudad
-              </option>
-              {ciudades.map((ciudad) => (
-                <option key={ciudad.id} value={ciudad.id}>
-                  {ciudad.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <button type="submit">Crear Cuenta</button>
+            <button type="submit" className="btnLogin buttonBuy">
+              Crear Cuenta
+            </button>
           </div>
         </form>
-
-        {/* Mostrar el mensaje de éxito o error */}
-        <h2 id="SuccessMessage">{successMessage}</h2>
-      </article>
+        <Toaster position="top-center" richColors />
+      </section>
     </>
   );
 }
